@@ -1,0 +1,24 @@
+version: "2"
+services:
+    gearman:
+        container_name: gearman_server
+        build:
+            context: ./gearman-server
+        expose:
+            - 4730
+        ports:
+          - 4730:4730
+
+    gearmanui:
+        container_name: gearman_ui
+        build:
+            context: ./gearman-ui
+        ports:
+            - 8085:80
+        links:
+            - gearman
+
+networks:
+    default:
+        external:
+            name: gearman-network

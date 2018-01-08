@@ -1,0 +1,40 @@
+version: '2'
+
+services:
+    db:
+        container_name: gearman-client_db
+        image: mysql
+        ports:
+            - 3396:3306
+        volumes:
+            - "./.data/db:/var/lib/mysql"
+        environment:
+            MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+            MYSQL_DATABASE: ${MYSQL_DATABASE}
+            MYSQL_USER: ${MYSQL_USER}
+            MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    php:
+        container_name: gearman-client_php
+        build:
+            context: php7-fpm
+            args:
+                TIMEZONE: ${TIMEZONE}
+        volumes:
+            - ${SYMFONY_APP_PATH}:/var/www/gearman-client
+            - ./logs/symfony:/var/www/gearman-client/var/logs
+    nginx:
+        container_name: gearman-client_nginx
+        build: nginx
+        ports:
+            - 80:80
+        links:
+            - php
+        volumes_from:
+            - php
+        volumes:
+            - ./logs/nginx/:/var/log/nginx
+
+networks:
+    default:
+        external:
+            name: gearman-network
